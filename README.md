@@ -1,12 +1,17 @@
 # PB_Scheduling
-src: source code floder
-  -- /src/AO Area-Oriented algorithm
-  -- /src/PB Priority Based algorithm
-  -- /src/Heft Heft algorithm
-  -- /src/FIFO First In First Out algorithm
-  -- /src/experiment experiments in paper
-  -- /src/source Source files about DAG
-  -- /src/Tools Test files
+
+AO Area-Oriented algorithm
+
+PB Priority Based algorithm
+
+Heft Heft algorithm
+
+FIFO First In First Out algorithm
+
+experiment experiments in paper
+
+source Source files about DAG
+
 Cbbbs_DAG Random_DAG SP_DAG: DAG files
 
 
