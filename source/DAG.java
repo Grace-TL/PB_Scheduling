@@ -14,8 +14,9 @@ public class DAG implements Cloneable{
 
     public List<ArcNode> ArcNodeList = new LinkedList<ArcNode>(); //edge list	
 
-    public String Path="Cbbbs_DAG/cbbb_502.txt";   //path 
-    //	public String Path="SP_DAG/sp_1000.txt";   
+    //public String Path="DAG_Cbbbs/cbbb_30.txt";   //path 
+    //public String Path="DAG_Cbbbs/exp2.txt";   
+    public String Path="DAG_SP/sp_exp.txt";
     private double[] Jobtime;
 
 
@@ -172,6 +173,23 @@ public class DAG implements Cloneable{
         return false;
     }
 
+    public void delarc(int st, int ed){
+        Node onode = this.FindNode(st);		
+        Node enode = this.FindNode(ed);
+        Node delnode = null;
+        for(Node next: onode.next){  
+            if(next.data == ed)
+                delnode = next;
+        }
+        if(delnode!=null)
+            onode.next.remove(delnode);
+        delnode = null;
+        for(Node pre : enode.previous)
+            if(pre.data == st)
+                delnode = pre;
+        if(delnode!=null)
+            enode.previous.remove(delnode);
+    }
     /**
      * For SP DAG, find the exit_Node 
      * there is only one exit node in SP DAG
@@ -276,7 +294,17 @@ public class DAG implements Cloneable{
         }
 
     }			 
-
-
-
+    public void dump(){
+        for(Node node : this.NodeList){
+            System.out.print("Node " + node.data);
+            System.out.print(" : --->");
+            for(Node nnode: node.next)
+                System.out.print(" " + nnode.data);
+            System.out.println();
+            System.out.print("         <---");
+            for(Node pnode : node.previous)
+                System.out.print(" " + pnode.data);
+            System.out.println();
+        }
+    }
 }
