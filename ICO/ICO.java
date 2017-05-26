@@ -42,10 +42,11 @@ public class ICO {
             DAG dagnode = GetSupernode(node, G_copy);
             superDag.add(index, dagnode);
             index += 1;
+    /*
             //dump
             System.out.println("----------------- the " + (index-1) + "-th dag -------------------");
             dagnode.dump();
-
+    */
             //Delete dagnode from the original dag
             for(Node snode : dagnode.NodeList){
                 Node csnode = G_copy.FindNode(snode.data);
@@ -111,9 +112,12 @@ public class ICO {
                 }
             }
         }
+
+        /*
         System.out.println("Finish superDag construction, size is " + (superDag.size()-1));
         System.out.println("The index dag is ");
         indexdag.dump();
+        */
     }
 
     /**
@@ -164,7 +168,7 @@ public class ICO {
      * */
     public void getSMap(){
         for(int i = 1; i < superDag.size(); i++){
-            System.out.println("--------------  " + i + "-th superdag ----------------");
+//            System.out.println("--------------  " + i + "-th superdag ----------------");
             List<Node> schedule = new ArrayList<Node>();
             conSchedule(superDag.get(i), schedule);
             scheduleMap.put(i,schedule);
@@ -197,43 +201,15 @@ public class ICO {
             G_copy.DelNode(mnode);
             eligible = G_copy.GetEntryNodes();
        }
-
+/*
        //dump
         System.out.print("schedule:");
         for(Node node : schedule)
             System.out.print(node.data+" ");
         System.out.println();
+  */
     }
-    /*
-       public double[] GetEligibility(DAG G_copy, List<Node> schedule){
-
-        DAG G = new DAG();
-        for(Node node : G_copy.NodeList)
-            G.NodeList.add((Node)node.clone());
-        int[] EV1 = new int[schedule.size()]; 
-        double[] AVG = new double[schedule.size()];
-        for(Node node :schedule){
-            int e1 = G.GetEntryNodes().size() - 1; 
-            G.DelNode(node);
-            int e2 = G.GetEntryNodes().size();
-            EV1[schedule.indexOf(node)] = e2 - e1 ;  
-        }
-
-        int sum = 0;
-        for(int i = 0; i < EV1.length ; i++){
-            sum += EV1[i];
-            AVG[i] = sum /(i+1.0);
-        }
-
-        //System.out.println("-------Current AVG is: ");
-        //for(int i = 0; i <AVG.length;i++)
-        //	System.out.print(" "+AVG[i]);
-        //System.out.println();
-        return AVG;
-    }
-*/
-
-
+   
     /***
      *return the priority of two dags
      * */
@@ -259,7 +235,6 @@ public class ICO {
                 r = rtmp;
         }
 
-        //System.out.println("dag"+index1+" -- dag"+index2+"  "+r);
         return r;
 
     }
@@ -278,7 +253,7 @@ public class ICO {
     }
    
     public void ICOSchedule() throws FileNotFoundException{
-        DAG dag = new DAG();
+        this.dag = new DAG();
         dag.InitDAG(); 
         //setp 1. Find G`s transitive skeleton
         ReShortcuts res = new ReShortcuts();
@@ -289,7 +264,8 @@ public class ICO {
         //Setp3. Find schedule for each node in super dag
         getSMap();
         //Step4. Choosing the source that maxmize the priority
-        //
+        ico();
+
         //For source nodes, decide the priority relationship of each pair
         //then choose the maxnum priority
         //this.schedule = fi.schedule;
@@ -335,12 +311,6 @@ public class ICO {
 
         for(Node rnode : this.dag.NodeList)
             this.schedule.add(rnode);
-
-        System.out.print("The final ICO Schedule is : ");
-        for(Node node : schedule)
-            System.out.print(" "+ node.data);
-        System.out.println();
- 
     }
 
 
