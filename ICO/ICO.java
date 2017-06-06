@@ -20,7 +20,7 @@ public class ICO {
     //store super dag node, each node in super dag is also a dag
     //the first dag is the index dag
     public List<DAG> superDag = new ArrayList<DAG>();  
-    public DAG dag_ori;  //backup of the original dag
+    //public DAG dag_ori;  //backup of the original dag
     public List<Node> schedule = new LinkedList<Node>();
     public Map<Integer, List<Node>> scheduleMap = new HashMap<Integer, List<Node>>();
     
@@ -169,16 +169,16 @@ public class ICO {
     public void getSMap(){
         for(int i = 1; i < superDag.size(); i++){
 //            System.out.println("--------------  " + i + "-th superdag ----------------");
-            List<Node> schedule = new ArrayList<Node>();
-            conSchedule(superDag.get(i), schedule);
-            scheduleMap.put(i,schedule);
+            List<Node> schedulelist = new ArrayList<Node>();
+            conSchedule(superDag.get(i), schedulelist);
+            scheduleMap.put(i,schedulelist);
         } 
     }
 
     /***
      *Get the schedule of the given dag
      * */
-    private void conSchedule(DAG dagnode, List<Node> schedule){
+    private void conSchedule(DAG dagnode, List<Node> schedulelist){
         DAG G_copy = new DAG();
         for(Node node : dagnode.NodeList)
             G_copy.NodeList.add((Node)node.clone());
@@ -197,7 +197,7 @@ public class ICO {
                 if(mnode.next.size() < node.next.size())
                     mnode = node;
             }
-            schedule.add(mnode);
+            schedulelist.add(mnode);
             G_copy.DelNode(mnode);
             eligible = G_copy.GetEntryNodes();
        }
@@ -243,18 +243,21 @@ public class ICO {
      *return the number of eligible nodes
      for edag, execute x nodes according to schedule
      * */
-    private int getEligible(DAG edag, List<Node> schedule, int x){
+    private int getEligible(DAG edag, List<Node> schedulelist, int x){
         DAG G_dag = new DAG();
         for(Node node : edag.NodeList)
             G_dag.NodeList.add((Node)node.clone());
         for(int i = 0; i < x; i++)
-            G_dag.DelNode(schedule.get(i));
+            G_dag.DelNode(schedulelist.get(i));
         return G_dag.GetEntryNodes().size();
     }
    
     public void ICOSchedule() throws FileNotFoundException{
         this.dag = new DAG();
-        dag.InitDAG(); 
+        dag.InitDAG();
+        this.superDag.clear();
+        this.schedule.clear();
+        this.scheduleMap.clear();
         //setp 1. Find G`s transitive skeleton
         ReShortcuts res = new ReShortcuts();
         res.dag = dag;
@@ -269,10 +272,15 @@ public class ICO {
         //For source nodes, decide the priority relationship of each pair
         //then choose the maxnum priority
         //this.schedule = fi.schedule;
+        
+
+        /*
+        //dump final schedule
         System.out.print("The final ICO Schedule is : ");
-        for(Node node : schedule)
+        for(Node node : this.schedule)
             System.out.print(" "+ node.data);
         System.out.println();
+        */
     }
 
 
