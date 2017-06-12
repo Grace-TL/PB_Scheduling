@@ -12,9 +12,9 @@ public class Filter {
     public DAG dag;
     public DAG spdag = new DAG();
     public List<Node> schedule = new LinkedList<Node>();
-    public void filter() throws FileNotFoundException{
+    public void filter(String dagpath) throws FileNotFoundException{
         dag = new DAG();
-        dag.InitDAG();
+        dag.InitDAG(dagpath);
         List<Node> delList = new LinkedList<Node>();  
         List<Node> schedule_new = new LinkedList<Node>(); 
         //int sn_idx = 0;
@@ -40,11 +40,13 @@ public class Filter {
                     List<Node> equallist = new LinkedList<Node>();
                     List<Node> order = new LinkedList<Node>();
                     //Node snode = spdag.NodeList.get(spdag.FindNode(node.data));
-                    for(Node previous : sp_node.previous)
-                        equallist.add(previous);   
+                    for(Node previous : sp_node.previous){
+                        if(this.dag.FindNode(previous.data) != null)
+                            equallist.add(previous);   
+                    }
                     //for(Node pnode :equallist)
                     //	System.out.print(pnode.data+" ");
-                    System.out.println();
+                    //System.out.println();
                     DAG dag_temp = new DAG();  
                     for(Node onode : dag.NodeList)
                         dag_temp.NodeList.add((Node)onode.clone());

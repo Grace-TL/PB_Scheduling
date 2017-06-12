@@ -173,7 +173,7 @@ public class AO {
             List<Node> del = new LinkedList<Node>( ); 
             for(int j = 0 ; j<= cursor; j++){
                 block.NodeList.add(schedule.get(j));
-                G_copy.DelNode(G_copy.FindNode((int) schedule.get(j).data));
+                G_copy.DelNode(G_copy.FindNode(schedule.get(j).data));
                 del.add(schedule.get(j));
             }
             for(Node node : del)
@@ -211,9 +211,9 @@ public class AO {
         return AVG;
     }
 
-    public void AOSchedule() throws FileNotFoundException{
+    public void AOSchedule(String dagpath) throws FileNotFoundException{
         DAG dag = new DAG();
-        dag.InitDAG(); 
+        dag.InitDAG(dagpath); 
         //setp 1. Find G`s transitive skeleton
         ReShortcuts res = new ReShortcuts();
         res.dag = dag;
@@ -222,15 +222,17 @@ public class AO {
         SP sp = new SP();
         sp.dag = res.dag;
         //		sp.dag = dag;
-        sp.SP_ization(); 
+        sp.SP_ization(dagpath);
+        //sp.dag.dump();
         Filter fi = new Filter();
         for(Node node : sp.dag.NodeList)
             fi.spdag.NodeList.add((Node)node.clone());   
-        //for(Node node : sp.dag.NodeList)			
-        //	for(Node next : node.next)		
-        //		System.out.println("( "+node.data+", "+next.data+" )" );
-        //System.out.println("---------------------------------------------------------------------");
-
+       /*
+        for(Node node : sp.dag.NodeList)			
+        	for(Node next : node.next)		
+        		System.out.println("( "+node.data+", "+next.data+" )" );
+        System.out.println("---------------------------------------------------------------------");
+      */
         //Setp3. Find.......
         Decompose dc = new Decompose();
         dc.dag = (DAG)sp.dag.clone();
@@ -244,17 +246,26 @@ public class AO {
 
         //Step4. "Filter" the AREA-max schedule
         fi.schedule = root.schedule;
-        fi.filter();
+        /*
+        System.out.print("Schedule (before filter):" );
+        for(Node node : root.schedule)
+            System.out.println(" "+node.data);
+        System.out.println();
+        */
+        fi.filter(dagpath);
         this.schedule = fi.schedule;
+/*
+        //dump final schedule
         System.out.print("The final AO Schedule is : ");
         for(Node node : schedule)
             System.out.print(" "+ node.data);
         System.out.println();
+*/  
     }
 
-    public void AOSchedule_sp() throws FileNotFoundException{
+    public void AOSchedule_sp(String dagpath) throws FileNotFoundException{
         DAG dag = new DAG();
-        dag.InitDAG(); 
+        dag.InitDAG(dagpath); 
         long startTime_AO = System.currentTimeMillis(); 
         //Setp3. Find.......
         Decompose dc = new Decompose();
@@ -270,21 +281,25 @@ public class AO {
         //Step4. "Filter" the AREA-max schedule
         Filter fi = new Filter();
         fi.schedule = root.schedule;
-        fi.filter();
+        fi.filter(dagpath);
         long endTime_AO = System.currentTimeMillis(); 
         this.schedule = fi.schedule;
+
+        /*
+         * dump schedule
         System.out.print("The final AO Schedule is : ");
         for(Node node : schedule)
             System.out.print(" "+ node.data);
         System.out.println();
         System.out.println("Inner AO   "+(endTime_AO-startTime_AO));
-
+        */
     }
 
-    //public static void main(String agrs[]) throws FileNotFoundException{
-    //	
-    //	AO ao = new AO();
-    //	ao.AOSchedule();
-    ////			ao.AOSchedule_sp();
-    //}
+    public static void main(String agrs[]) throws FileNotFoundException{
+    	
+    	AO ao = new AO();
+        String path = "DAG_SP/sp_30_0.txt";
+    	ao.AOSchedule(path);
+    //			ao.AOSchedule_sp();
+    }
 }

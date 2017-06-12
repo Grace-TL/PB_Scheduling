@@ -50,7 +50,7 @@ public class InitSP {
     }
 
     /**
-     * Set the layer of each node
+     * Set the layer of each node, function in CrearLayers
      */
     public void Initlayers(DAG dag){
 
@@ -61,7 +61,10 @@ public class InitSP {
         initlayer(entrynode, dag);
     }
 
-    public void initlayer(Node currentNode , DAG dag){
+    /**
+     * function in Initlayers(DAG dag)
+     * */
+    private void initlayer(Node currentNode , DAG dag){
 
         for(Node node : currentNode.next){			
             if(node.layer < currentNode.layer + 1){			
@@ -92,9 +95,9 @@ public class InitSP {
     }
 
     /**
-     * Construct Relative
+     * Construct Relative, function in SplitLayer(int i)
      */
-    public  void ConsRelative(Layer layer_u, Layer layer_d, Node currentnode, Relative relative){
+    private  void ConsRelative(Layer layer_u, Layer layer_d, Node currentnode, Relative relative){
 
         currentnode.VertexStatue = 1; 		
         relative.U.add(currentnode);

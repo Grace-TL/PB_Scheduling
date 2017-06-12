@@ -20,7 +20,7 @@ public class Decompose {
         //****************************************************************************
         //System.out.println();
         //System.out.println("Binary decomposition tree, root node is:"+root_dc.data);
-        decomp(dag, root_dc);
+        decomp(this.dag, root_dc);
     }
 
     public void decomp(DAG T, Dnode root_dc){

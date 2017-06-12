@@ -6,9 +6,12 @@ import java.util.List;
 public class Relative {
 	
 	public int id; 
-	public Node h ; //U-handle
-	public Node H ; //handle node of U
-	public List<Node> KT = new LinkedList<Node>();
+	//new
+    public int h ; //U-handle
+	public int H ; //handle node of U
+	//public Node h;
+    //public Node H;
+    public List<Node> KT = new LinkedList<Node>();
 	public List<Node> SubF = new LinkedList<Node>();
 	public List<Node> U = new LinkedList<Node>();  //list node of U
 	public List<Node> D = new LinkedList<Node>();  //list node of D
