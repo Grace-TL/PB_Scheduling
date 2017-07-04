@@ -42,11 +42,9 @@ public class ICO {
             DAG dagnode = GetSupernode(node, G_copy);
             superDag.add(index, dagnode);
             index += 1;
-    /*
             //dump
-            System.out.println("----------------- the " + (index-1) + "-th dag -------------------");
-            dagnode.dump();
-    */
+            //System.out.println("----------------- the " + (index-1) + "-th dag -------------------");
+            //dagnode.dump();
             //Delete dagnode from the original dag
             for(Node snode : dagnode.NodeList){
                 Node csnode = G_copy.FindNode(snode.data);
@@ -113,11 +111,9 @@ public class ICO {
             }
         }
 
-        /*
-        System.out.println("Finish superDag construction, size is " + (superDag.size()-1));
-        System.out.println("The index dag is ");
-        indexdag.dump();
-        */
+        //System.out.println("Finish superDag construction, size is " + (superDag.size()-1));
+        //System.out.println("The index dag is ");
+        //indexdag.dump();
     }
 
     /**
@@ -168,7 +164,7 @@ public class ICO {
      * */
     public void getSMap(){
         for(int i = 1; i < superDag.size(); i++){
-//            System.out.println("--------------  " + i + "-th superdag ----------------");
+//            //System.out.println("--------------  " + i + "-th superdag ----------------");
             List<Node> schedulelist = new ArrayList<Node>();
             conSchedule(superDag.get(i), schedulelist);
             scheduleMap.put(i,schedulelist);
@@ -214,6 +210,7 @@ public class ICO {
      *return the priority of two dags
      * */
     private double getPriority(int index1, int index2){
+        //System.out.println("Now is compare dag "+index1+" dag "+index2);
         DAG dag1 = superDag.get(index1);
         DAG dag2 = superDag.get(index2);
         int x,y;
@@ -230,11 +227,13 @@ public class ICO {
                 e3 = getEligible(dag1, this.scheduleMap.get(index1), Math.min(x,i+j))
                     + getEligible(dag2, this.scheduleMap.get(index2), (i+j)-Math.min(x,i+j));
                 rtmp = e3*1.0/(e1+e2);
+                //System.out.println("i="+i+" j="+j+" e1="+e1+" e2="+e2+" e3="+e3+" rtmp="+rtmp);
             }
             if(r > rtmp)
                 r = rtmp;
         }
 
+        //System.out.println("r="+r);
         return r;
 
     }
@@ -252,9 +251,9 @@ public class ICO {
         return G_dag.GetEntryNodes().size();
     }
    
-    public void ICOSchedule() throws FileNotFoundException{
+    public void ICOSchedule(String dagpath) throws FileNotFoundException{
         this.dag = new DAG();
-        dag.InitDAG();
+        dag.InitDAG(dagpath);
         this.superDag.clear();
         this.schedule.clear();
         this.scheduleMap.clear();
@@ -301,7 +300,7 @@ public class ICO {
                             min = pri_matrix[i][j];
                     }
                 }
-                if(minmax < min){
+                if(minmax <= min){
                     minmax = min;
                     max = i;
                 }
@@ -328,11 +327,16 @@ public class ICO {
 
        public static void main(String agrs[]) throws FileNotFoundException{
     	
+        String dagpath = "DAG_SP/sp_tang.txt";
     	ICO ico = new ICO();
         ico.dag = new DAG();
-        ico.dag.InitDAG();
+        ico.dag.InitDAG(dagpath);
     	ico.getSuperdag();
         ico.getSMap();
         ico.ico();
+        for(Node node : ico.schedule) {
+            System.out.print(" "+node.data);
+        }
+        System.out.println();
     }
 }
