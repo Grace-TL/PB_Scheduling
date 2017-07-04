@@ -306,7 +306,13 @@ public class Makespan_EPB {
 	}
 	
 	public void getEligible(DAG dag , List<Node> schedule){
-		
+	
+        System.out.println("Schedule :");
+        for(Node node : schedule) {
+            System.out.print(node.data+" ");
+        }
+        System.out.println();
+
 		List<Integer> eligi = new LinkedList<Integer>();		
 		List<Integer> total = new LinkedList<Integer>();		
 		DAG co_dag = new DAG();		
@@ -336,7 +342,7 @@ public class Makespan_EPB {
     public static void main(String agrs[]) throws IOException, RowsExceededException, WriteException{
 
         WritableWorkbook wwb = null;
-        String fileName = "/Users/tanglu/Desktop/test";
+        String fileName = "/Users/tanglu/Desktop/random_1000";
         File file=new File(fileName);
         if (!file.exists()) {
             file.createNewFile();
@@ -367,36 +373,42 @@ public class Makespan_EPB {
 
         int runtimes=100;
         Makespan_EPB ms = new Makespan_EPB();
-        ms.dagpath = "DAG_SP/test.txt";
+        ms.dagpath = "DAG_Random/random_1000_0.txt";
         ms.dag = new DAG();		
         ms.dag.InitDAG(ms.dagpath);
         ms.dag.initJobtime(100);
 
         PB pb = new PB();  
         pb.PBSchedul(ms.dagpath);
+        System.out.println("Finish PB!");
         ms.getEligible(ms.dag , pb.SchedulList);
-
-        EPB epb = new EPB();
-        epb.EPBSchedul(ms.dagpath);
-        ms.getEligible(ms.dag , epb.SchedulList);
 
         AO ao = new AO();
         /***************************Please notice 1 ************************************************************/
-        ao.AOSchedule(ms.dagpath);   
+        ao.AOSchedule(ms.dagpath);  
+        System.out.println("Finish AO!");
         /***************************end notice  ****************************************************************/
         ms.getEligible(ms.dag, ao.schedule);
 
-
-        Heft heft = new Heft();
-        heft.HeftSchedule(ms.dagpath);
-        ms.getEligible(ms.dag, heft.SchedulList);
-    
         ICO ico = new ICO();
         ico.ICOSchedule(ms.dagpath);
+        System.out.println("Finish ICO!");
         ms.getEligible(ms.dag, ico.schedule);
+
+        Heft heft = new Heft();
+        heft.HeftSchedule(ms.dag.CopyDag());
+        System.out.println("Finish Heft!");
+        ms.getEligible(ms.dag, heft.SchedulList);
+       
+        EPB epb = new EPB();
+        epb.EPBSchedul(ms.dag.CopyDag());
+        System.out.println("Finish EPB!");
+        ms.getEligible(ms.dag , epb.SchedulList);
+
 
 
         /***************************Please notice 2 ************************************************************/
+        //actual run time
         ms.initJobtime( );	  
         /**************************** end notice ****************************************************************/
 
