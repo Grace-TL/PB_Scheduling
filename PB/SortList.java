@@ -22,7 +22,6 @@ public class SortList {
      */
 
     public int ComparePriority(Node node1, Node node2){
-
         switch(CompareQ(0, node1, node2)){
             case 1:{				
                        switch(CompareQ(1,node1,node2)){				
@@ -63,6 +62,32 @@ public class SortList {
 
     }
 
+    public int ComparePriority_LQ(Node node1, Node node2){
+        switch(CompareQ(1, node1, node2)){
+            case 1:{				
+                return 1;			
+            }
+            case 0:{				
+                       switch(CompareQ(0,node1,node2)){				
+                           case 1: return 1;				
+                           case 0:{					
+                                      switch(CompareQ(2,node1,node2)){					
+                                          case 1: return 1;					
+                                          case 0: return 0;					
+                                          default: return -1;
+                                      }
+                           }
+                           default: return -1;
+                       }
+            }
+            default:{				
+                return -1;           
+            }
+        }
+
+    }
+
+ 
     public int CompareQ(int i,Node node1, Node node2){
 
         if(node1.Quo_V[i] > node2.Quo_V[i])		
@@ -82,6 +107,19 @@ public class SortList {
         }
         return L.get(max);
     }
+
+
+    public Node MaxPriNode_LQ(){
+
+        Node MaxNode = L.get(0);
+        for(Node node : L) {
+            if(ComparePriority_LQ(MaxNode, node) == -1) {
+                MaxNode = node;
+            }
+        }
+        return MaxNode;
+    }
+
 
     public void setq(Node node,double i ,double j,double k,double m){
         node.Quo_V[0] = i;	

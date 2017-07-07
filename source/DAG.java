@@ -14,9 +14,9 @@ public class DAG implements Cloneable{
 
     public List<ArcNode> ArcNodeList = new LinkedList<ArcNode>(); //edge list	
 
-    //public String Path="DAG_Cbbbs/cbbb_30.txt";   //path 
+    //public String Path="DAG_Cbbbs/cbbb_802.txt";   //path 
     //public String Path="DAG_Cbbbs/exp2.txt";   
-    public String Path="DAG_SP/sp_exp.txt";
+    public String Path="DAG_SP/sp_100.txt";
     private double[] Jobtime;
 
 
@@ -36,10 +36,10 @@ public class DAG implements Cloneable{
 
 
     //read data from file and init DAG
-    public void InitDAG() throws FileNotFoundException{
+    public void InitDAG(String path) throws FileNotFoundException{
 
-        System.out.println("Loading data......");
-        FileInputStream fis=new FileInputStream(Path);
+        //System.out.println("Loading data......");
+        FileInputStream fis=new FileInputStream(path);
         System.setIn(fis);	     
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -267,9 +267,11 @@ public class DAG implements Cloneable{
         //Normal distribution
         double[] jobTime = new double[NodeList.size()];
         for(int k = 0 ; k < NodeList.size() ; k++)  
-            jobTime[k] = new Random().nextInt(t) + 1; //generate integer of 1--t+1
+            jobTime[k] = (new Random().nextInt(t))%t + 1; //generate integer of 1--t
         for(int i = 0; i < NodeList.size();i++){	 
-            NodeList.get(i).jobTime = jobTime[i]; 
+            NodeList.get(i).jobTime = jobTime[i];
+            //tanglu
+            //NodeList.get(i).jobTime = 1; 
             System.out.println("Node "+NodeList.get(i).data+" jobtime is "+jobTime[i]);
         }
     }

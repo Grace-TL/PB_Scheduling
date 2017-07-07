@@ -44,7 +44,7 @@ public class InitQuoVet {
 		for(int i = 0; i < exitlist.size(); i++){	
 			Node node = dag.FindNode(exitlist.get(i).data);			
 			node.Quo_V[1] += Math.ceil(exitlist.get(i).jobTime/5);			
-			//node.Quo_V[2] = 0;			
+            //node.Quo_V[2] = 0;			
 			//node.Quo_V[3] = 0;			
 			SetJT(node);
 		}
@@ -77,8 +77,8 @@ public class InitQuoVet {
 		previous = node.previous;
 		for(Node pnode : previous){
 			pnode = dag.FindNode(pnode.data);
-			if(pnode.Quo_V[1] < node.Quo_V[1] + Math.ceil(pnode.jobTime/5)){
-				pnode.Quo_V[1] = node.Quo_V[1] + Math.ceil(pnode.jobTime/5); 
+            if(pnode.Quo_V[1] < node.Quo_V[1] + Math.ceil(pnode.jobTime/5)){
+                pnode.Quo_V[1] = node.Quo_V[1] + Math.ceil(pnode.jobTime/5); 
 //				System.out.println("Node : "+node.data+"        LQ:"+node.Quo_V[1]);
 				SetJT(pnode);
 			}
