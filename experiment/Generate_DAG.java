@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.lang.String;
 
 import source.DAG;
 import source.Node;
@@ -23,17 +24,19 @@ public class Generate_DAG {
 	public int N;
 	
 	public int levels;
-	
+
+    public int num_node;
+
 	public void CreateDAG( int n, int lev, int number ) throws FileNotFoundException{
 
 		DAG dag = new DAG();		
 		Random rand = new Random();		
 		int N = rand.nextInt(n)+1;  //random number
 		int levels = rand.nextInt(lev)+1;   	
-		System.out.println("N "+N+" levels "+levels);		
+		//System.out.println("N "+N+" levels "+levels);		
 		String path = "Random_DAG/dag_"+number+".txt";
 		PrintStream ps=new PrintStream(new FileOutputStream(path));  		 
-	    System.setOut(ps);   
+	    //System.setOut(ps);   
 		for(int i = 1 ; i <= N ; i++){  //node id begin from 1, sp dag begin from 0 
 			Node node = new Node(i);			
 			dag.NodeList.add(node);			
@@ -99,27 +102,28 @@ public class Generate_DAG {
 					}
 				}
 			}
-		}
-		
-		System.out.println(N);
-		for(Node node : dag.NodeList){			
-			for(Node next : node.next)		
-				System.out.println(node.data+" "+next.data);
-		}
-	}
+        }
+        /*
+           System.out.println(N);
+           for(Node node : dag.NodeList){			
+           for(Node next : node.next)		
+           System.out.println(node.data+" "+next.data);
+           }
+           */
+    }
 	
 	public List<DAG> CreateCBBBs(int p){
 		
 		Random rand = new Random();
 		N = rand.nextInt(p)+1; 
-        System.out.println("N = "+N);
+        //System.out.println("N = "+N);
 		int current_N = 0;
 		List<DAG> CBBBs = new LinkedList<DAG>();
 		
 		while(current_N < N){
 			
 		int cid = rand.nextInt(4)+1;  //1. W 2. M 3. N 4. C 5.Q
-		System.out.println("w m n q ----" + cid);
+		//System.out.println("w m n q ----" + cid);
 		switch(cid){
 		case 1: {
 			
@@ -178,7 +182,7 @@ public class Generate_DAG {
 		return CBBBs;
 	}
 	
-	public void GetCBBB_DAG(List<DAG> CBBBs, int number) throws FileNotFoundException{//////
+	public void GetCBBB_DAG(List<DAG> CBBBs, String number) throws FileNotFoundException{//////
 		
 	
 		Random rand = new Random();
@@ -203,14 +207,17 @@ public class Generate_DAG {
 			
 		}
 
-        CBBBs.get(0).dump();
+        //CBBBs.get(0).dump();
 		
-		
-		System.out.println("The final CBBBS DAG is "+CBBBs.get(0).NodeList.size());
+	
+        this.num_node = CBBBs.get(0).NodeList.size();
+		//System.out.println("The final CBBBS DAG is "+CBBBs.get(0).NodeList.size());
 		
 		String path = "/Users/tanglu/Workspace/research/PB_Scheduling/DAG_Cbbbs/cbbb_"+number+".txt";
-
-		PrintStream ps=new PrintStream(new FileOutputStream(path));  
+    
+	    
+        PrintStream stdout = System.out;
+        PrintStream ps=new PrintStream(new FileOutputStream(path));  
 		 
 	    System.setOut(ps);   
 	    for(int i = 0; i < CBBBs.get(0).NodeList.size();i++)
@@ -219,7 +226,7 @@ public class Generate_DAG {
 		for(Node node : CBBBs.get(0).NodeList)
 			for(Node next : node.next)
 			System.out.println(node.data+" "+next.data);
-		
+        System.setOut(stdout);
 
 	}
 
@@ -243,7 +250,7 @@ public class Generate_DAG {
 				tnode = sinkList.get(rand.nextInt(sinkList.size()-1));
 			else
 				tnode = sinkList.get(0);
-		    System.out.println("Merge node " + tnode.data + " node " + snode.data);
+		    //System.out.println("Merge node " + tnode.data + " node " + snode.data);
             for(Node snnode : snode.next){  
 				tnode.next.add(snnode);
 				snnode.previous.set(snnode.previous.indexOf(snode), tnode);
@@ -256,7 +263,7 @@ public class Generate_DAG {
 		
 		for(Node node : dag2.NodeList)
 			dag1.NodeList.add(node);
-	    dag1.dump();	
+	    //dag1.dump();	
 		return dag1;
 
 	}
@@ -276,12 +283,14 @@ public class Generate_DAG {
 				
 			}
 		}
-        System.out.println("Q_DAG " + Q_dag.NodeList.size());		
-		for(Node node : Q_dag.NodeList)
-		for(Node previous : node.previous)
-			System.out.println("( "+ previous.data+", "+node.data+" )");
-		return Q_dag;
-	}
+        /*
+           System.out.println("Q_DAG " + Q_dag.NodeList.size());		
+           for(Node node : Q_dag.NodeList)
+           for(Node previous : node.previous);
+           System.out.println("( "+ previous.data+", "+node.data+" )");
+           */
+        return Q_dag;
+    }
 
 	private DAG CreateC(int x, int id) {
 		DAG C_dag = new DAG();
@@ -307,16 +316,18 @@ public class Generate_DAG {
 					C_dag.NodeList.get(x).previous.add(C_dag.NodeList.get(x-1));
 				}
 			}
-		}
-		System.out.println("C_DAG " + C_dag.NodeList.size());			
-		for(Node node : C_dag.NodeList)
-		for(Node next : node.next)
-			System.out.println("( "+ node.data+", "+next.data+" )");
-		return C_dag;
-	}
+        }
+        /*
+           System.out.println("C_DAG " + C_dag.NodeList.size());			
+           for(Node node : C_dag.NodeList)
+           for(Node next : node.next)
+           System.out.println("( "+ node.data+", "+next.data+" )");
+           */
+        return C_dag;
+    }
 
 	private DAG CreateN(int x, int id) {
-		System.out.println("-----------------"+x);
+		//System.out.println("-----------------"+x);
 		DAG N_dag = new DAG();
 		for(int i = 0; i < 2*x; i++){  			
 			Node node = new Node(++id);
@@ -328,19 +339,21 @@ public class Generate_DAG {
 			for(int k = 0; k < 2; k++){
 				if(k+j < x){
 					N_dag.NodeList.get(j).next.add(N_dag.NodeList.get(x+k+j));
-					N_dag.NodeList.get(x+k+j).previous.add(N_dag.NodeList.get(j));
-				}
-			}
-		}
-		System.out.println("N_DAG " + N_dag.NodeList.size());			
-		for(Node node : N_dag.NodeList)
-		for(Node previous : node.previous)
-			System.out.println("( "+ previous.data+", "+node.data+" )");
-		return N_dag;
-	}
+                    N_dag.NodeList.get(x+k+j).previous.add(N_dag.NodeList.get(j));
+                }
+            }
+        }
+        /*
+           System.out.println("N_DAG " + N_dag.NodeList.size());			
+           for(Node node : N_dag.NodeList)
+           for(Node previous : node.previous)
+           System.out.println("( "+ previous.data+", "+node.data+" )");
+           */
+        return N_dag;
+    }
 
 	public DAG CreateW(int x, int y, int id){
-		System.out.println("-----------------"+x+"---"+y);
+		//System.out.println("-----------------"+x+"---"+y);
 		DAG W_dag = new DAG();
 		for(int i = 0; i < x*y+1; i++){  			
 			Node node = new Node(++id);
@@ -357,12 +370,14 @@ public class Generate_DAG {
 				W_dag.NodeList.get(x+k+j*(y-1)).previous.add(W_dag.NodeList.get(j));
 			}
 		}
-		System.out.println("W_DAG size " + W_dag.NodeList.size());
-		for(Node node : W_dag.NodeList)
-			for(Node previous : node.previous)
-				System.out.println("( "+ previous.data+", "+node.data+" )");
-		return W_dag;
-	}
+        /*
+           System.out.println("W_DAG size " + W_dag.NodeList.size());
+           for(Node node : W_dag.NodeList)
+           for(Node previous : node.previous)
+           System.out.println("( "+ previous.data+", "+node.data+" )");
+           */
+        return W_dag;
+    }
 	
 	public DAG CreateM(int x, int y, int id){
 
@@ -381,21 +396,32 @@ public class Generate_DAG {
 				M_dag.NodeList.get(j).previous.add(M_dag.NodeList.get(x+k+j*(y-1)));
 				M_dag.NodeList.get(x+k+j*(y-1)).next.add(M_dag.NodeList.get(j));
 			}
-		}
-		System.out.println("M_DAG " + M_dag.NodeList.size());			
-		for(Node node : M_dag.NodeList)
-			for(Node next : node.next)
-				System.out.println("( "+ node.data+", "+next.data+" )");
-		return M_dag;
-	}
+        }
+        /*
+           System.out.println("M_DAG " + M_dag.NodeList.size());			
+           for(Node node : M_dag.NodeList)
+           for(Node next : node.next)
+           System.out.println("( "+ node.data+", "+next.data+" )");
+           */
+        return M_dag;
+    }
 
-	public static void main(String agrs[]) throws FileNotFoundException{
+	public static void main(String args[]) throws FileNotFoundException{
 
-		Generate_DAG ge = new Generate_DAG();
-		
-//		ge.CreateDAG(0);   //Random dag
-		ge.GetCBBB_DAG(ge.CreateCBBBs(600),30);
-		
+        if(args.length != 2){
+            System.out.println("java Generate_DAG [DAG_SIZE] [Number of DAG you want generate]");
+            return;
+        }
+        int size = Integer.parseInt(args[0]);
+        int num = Integer.parseInt(args[1]);
+        for(int i = 0; i < num; i++){
+            //		ge.CreateDAG(0);   //Random dag
+            String serial = size + "_" + i;
+            Generate_DAG ge = new Generate_DAG();
+            while((ge.num_node > size+5) || (ge.num_node < size-5) ){
+                ge.GetCBBB_DAG(ge.CreateCBBBs(size*2),serial);
+            }
+        }
 		
 	}
 }

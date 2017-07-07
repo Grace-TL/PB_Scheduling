@@ -1,12 +1,11 @@
 /**
- * 
- * 本实验用来生成SP DAG
- * SIZE值为DAG结点数
+ *Generate SP dag 
  * **/
 package experiment;
 
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,9 +17,9 @@ import source.Node;
 public class Generate_SPDAG {
 	
 	public DAG T = new DAG();
-	public static final int SIZE = 7000;
+	public int SIZE = 7000;
 	public int idx = SIZE;
-	public HashMap<Integer, DAG> map = new HashMap(); 
+	public Map<Integer, DAG> map = new HashMap<Integer, DAG>(); 
 	public void Generate_tree(){
 		Node root = new Node(0);
 		T.NodeList.add(root);
@@ -44,7 +43,7 @@ public class Generate_SPDAG {
 	public void GetSPDag(){
 		List<Node> leaves = new LinkedList<Node>();
 		leaves = T.GetExitNodes();
-		for(Node node : leaves){  //将每个叶结点加入到map中（以dag的身份），每个叶结点代表一条边
+		for(Node node : leaves){  
 			Node node_new = (Node) node.clone();
 			node_new.previous.clear();
 			node_new.next.clear();
@@ -69,8 +68,8 @@ public class Generate_SPDAG {
 			consDag(node.next.get(0));
 		if(node.next.get(1).VertexStatue==0)
 			consDag(node.next.get(1));
-		DAG dag1 = (DAG) map.get(node.next.get(0).data);
-		DAG dag2 = (DAG) map.get(node.next.get(1).data);
+		DAG dag1 = map.get(node.next.get(0).data);
+		DAG dag2 = map.get(node.next.get(1).data);
 		DAG dag = new DAG();
 		if(Math.random()>0.5){
 			dag = unionPara(dag1,dag2);
@@ -155,31 +154,44 @@ public class Generate_SPDAG {
 		return dag1;
 	}
 
-	public static void main(String agrs[]) throws FileNotFoundException{
-		
-		Generate_SPDAG gs = new Generate_SPDAG();
-		gs.Generate_tree();
-//		for(Node node : gs.T.NodeList)
-//			for(Node next : node.next)
-//				System.out.println("( "+node.data+", "+next.data+" )");
-//		System.out.println("----------------------------------------------------------------------");
-		gs.GetSPDag();
-		DAG dag = new DAG();
-		Node root = gs.T.GetEntryNodes().get(0);
-		dag = gs.map.get(root.data);
-		int i = 1;
-		for(Node node : dag.NodeList){
-			node.data = i++;
-		}
-		System.out.println(dag.NodeList.size());
-		PrintStream out=System.out; //保存原输出流
-		PrintStream ps=new PrintStream("SP_DAG/sp_3500.txt"); //创建文件输出流
-//		PrintStream ps=new PrintStream("E:/data/sp_0.txt"); //创建文件输出流
-		System.setOut(ps); //设置使用新的输出流
-		System.out.println(dag.NodeList.size());
-		for(Node node : dag.NodeList)
-			for(Node next : node.next)
-				System.out.println(node.data+" "+next.data);
-	}
-	
+	public static void main(String args[]) throws FileNotFoundException{
+		if(args.length != 2){
+            System.out.println("java Generate_SPDAG [DAG_SIZE] [Number of DAG you want generate]");
+            return;
+        }
+        int size = Integer.parseInt(args[0]);
+        int num = Integer.parseInt(args[1]);
+        //		for(Node node : gs.T.NodeList)
+        //			for(Node next : node.next)
+        //				System.out.println("( "+node.data+", "+next.data+" )");
+        //		System.out.println("----------------------------------------------------------------------");
+        for(int j = 0; j < num; j++){
+            int num_node = 0;
+            String path = "DAG_SP/sp_" + size + "_" + j + ".txt";
+            DAG dag = new DAG();
+            while((num_node > size+5) || (num_node < size-5) ){
+                Generate_SPDAG gs = new Generate_SPDAG();
+                gs.SIZE = size*2;
+                gs.Generate_tree();
+                gs.GetSPDag();
+                dag = new DAG();
+                Node root = gs.T.GetEntryNodes().get(0);
+                dag = gs.map.get(root.data);
+                int i = 1;
+                for(Node node : dag.NodeList){
+                    node.data = i++;
+                }
+                num_node = dag.NodeList.size();
+//                System.out.println(dag.NodeList.size());
+            }
+            PrintStream out=System.out; 
+            PrintStream ps=new PrintStream(path); 
+            System.setOut(ps); 
+            System.out.println(dag.NodeList.size());
+            for(Node node : dag.NodeList)
+                for(Node next : node.next)
+                    System.out.println(node.data+" "+next.data);
+
+        }
+    }
 }
