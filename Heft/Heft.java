@@ -26,8 +26,8 @@ public class Heft {
     /**
      * Init LQ by jobtime
      * */
-    public void Init_JT(){	
-        List<Node> exitlist = dag.GetExitNodes();     //exitnodes Que_V{0,0,0,0}
+public void Init_JT(){	
+    List<Node> exitlist = dag.GetExitNodes();     //exitnodes Que_V{0,0,0,0}
     for(int i = 0; i < exitlist.size(); i++){	
         Node node = dag.FindNode(exitlist.get(i).data);			
         node.Quo_V[1] = 0;			
@@ -40,7 +40,7 @@ public class Heft {
         node.Quo_V[1] += Math.ceil(exitlist.get(i).jobTime/5);						
         SetJT(node);
     }	
-    }
+}
 
     public void SetJT(Node node){
         List<Node> previous = new LinkedList<Node>();
@@ -93,12 +93,11 @@ public class Heft {
         return MaxNode;
     }
 
-    public void HeftSchedule() throws FileNotFoundException{
+    public void HeftSchedule(String dagpath) throws FileNotFoundException{
 
         dag = new DAG();
-        dag.InitDAG();
+        dag.InitDAG(dagpath);
         SchedulList.clear();
-        Init();  
         Init_JT();  
         for(Node node : dag.GetEntryNodes()) 
             L.add(node);	
@@ -120,4 +119,32 @@ public class Heft {
         System.out.println();
 
     }
+
+  public void HeftSchedule(DAG mydag) throws FileNotFoundException{
+        this.dag = mydag;
+        SchedulList.clear();
+        //Init();       
+        Init_JT();  
+        for(Node node : this.dag.GetEntryNodes()) 
+            L.add(node);	
+        while(L.size()!=0){		
+            Node node = MaxPriNode(L);
+            this.SchedulList.add(node);	
+            //Remove v from L
+            L.remove(node);	
+            //Remove v form G
+            this.dag.DelNode(node);			
+            this.AddReady( );
+
+        }
+        System.out.print("The final Heft schedule is : ");
+        for(Node node : SchedulList){
+
+            System.out.print(" "+node.data);
+        }
+        System.out.println();
+
+    }
+
+
 }
