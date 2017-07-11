@@ -267,12 +267,12 @@ public class DAG implements Cloneable{
         //Normal distribution
         double[] jobTime = new double[NodeList.size()];
         for(int k = 0 ; k < NodeList.size() ; k++)  
-            jobTime[k] = (new Random().nextInt(t))%t + 1; //generate integer of 1--t
+            jobTime[k] = (new Random().nextInt(t)) + 1; //generate integer of 1--t
         for(int i = 0; i < NodeList.size();i++){	 
             NodeList.get(i).jobTime = jobTime[i];
             //tanglu
             //NodeList.get(i).jobTime = 1; 
-            System.out.println("Node "+NodeList.get(i).data+" jobtime is "+jobTime[i]);
+            //System.out.println("Node "+NodeList.get(i).data+" jobtime is "+jobTime[i]);
         }
     }
 

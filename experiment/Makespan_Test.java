@@ -24,82 +24,91 @@ import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 public class Makespan_Test {
-	public static final int SIZE = 50000;
-	private  double CURRENT_TIME = 0.0;
-	int[] batchSize = new int[SIZE];
-	double[] interTime = new double[SIZE];
-	double[] jobTime = new double[SIZE];
-	DAG dag = new DAG();
-	List<Node> schedule_AO = new LinkedList<Node>();
-	List<Node> schedule_PB = new LinkedList<Node>();
-	private List<Node> schedule;
-    public String dagpath;
+    public static final int SIZE = 50000;
+    //1 means use precision time, 0 means use estimated time
+    public final int PRECISION = 0;
+    //dag path
+    //public final String dagpath = "DAG_Cbbbs/cbbb_100_0.txt";
+    //public final String dagpath = "DAG_SP/sp_100_0.txt";
+    public final String dagpath = "DAG_Random/random_100_0.txt";
+    //init job time 
+    public final int initTime = 10;
+
+
+    private  double CURRENT_TIME = 0.0;
+    int[] batchSize = new int[SIZE];
+    double[] interTime = new double[SIZE];
+    double[] taskTime = new double[SIZE];
+    DAG dag = new DAG();
+    List<Node> schedule_AO = new LinkedList<Node>();
+    List<Node> schedule_PB = new LinkedList<Node>();
+    private List<Node> schedule;
     String debug = "";
     String debug1 = "";
 
-	public void init(int batchsize){
+    public void init(int batchsize){
 
-		  for(int i=0; i<SIZE; i++)  
-	            batchSize[i] = (int) Exponent_rand( 1.0/batchsize);  // lamda = 1.0/2;  //[1.0/2 ~ 1.0/32]  (2, 4, 8, 16, 32)
-		  
-		  // batch interarrival time
-		  for(int j=1; j<SIZE; j++)      
-	            interTime[j] = Exponent_rand(1.0/5);  //[ 1.0/1000 ~ 1000.0/1]		  
-	}
-	
-	
-	public void initJobtime( ){
-		int u=0; 
+        for(int i=0; i<SIZE; i++)  
+            batchSize[i] = (int) Exponent_rand( 1.0/batchsize);  // lamda = 1.0/2;  //[1.0/2 ~ 1.0/32]  (2, 4, 8, 16, 32)
+
+        // batch interarrival time
+        for(int j=1; j<SIZE; j++)      
+            interTime[j] = Exponent_rand(1.0/5);  //[ 1.0/1000 ~ 1000.0/1]		  
+    }
+
+
+    public void initJobtime( ){
+        int u=0; 
         double v=0; 
-		for(Node node : dag.NodeList){
-			u = (int) node.jobTime;
-			v = u/3.0;
-			node.jobTime = Norm_rand(u,v*v); 
-		}			  
-	}
-	
-	
-    public void Getschedule() throws FileNotFoundException{
-		
-		AO ao = new AO();
-		ao.AOSchedule(this.dagpath);
-		schedule_AO = ao.schedule;
-		PB pb = new PB();
-		pb.PBSchedul(this.dagpath);
-		schedule_PB = pb.SchedulList;
-		
-	}
-	
-	public double Norm_rand(double miu, double sigma2){
-		 
-		  double N = 12; 
-		  double x=0,temp=N;
-		  
-		  do{
-			  
-			  x=0;
-			  for(int i=0;i<N;i++)  
-				  x=x+(Math.random());
-			  
-			  x=(x-temp/2)/(Math.sqrt(temp/12)); 
-			  x=miu+x*Math.sqrt(sigma2);
-			  
-		   }while(x<=0);          
-		  return x;
-		 }
+        for(Node node : dag.NodeList){
+            u = (int) node.jobTime;
+            v = u/3.0;
+            node.jobTime = Norm_rand(u,v*v); 
+        }			  
+    }
 
-	public double Exponent_rand(double lamda){
-		
-		double z =  Math.random();		
-		double x;
-		
-		x = (-(1 / lamda) * Math.log(z)); 
-		
-		return x;
-		
-	}
-	
-	   /**
+
+    public void Getschedule() throws FileNotFoundException{
+
+        AO ao = new AO();
+        ao.AOSchedule(this.dagpath);
+        schedule_AO = ao.schedule;
+        PB pb = new PB();
+        pb.PBSchedul(this.dagpath);
+        schedule_PB = pb.SchedulList;
+
+    }
+
+    public double Norm_rand(double miu, double sigma2){
+
+        double N = 12; 
+        double x=0,temp=N;
+
+        do{
+
+            x=0;
+            for(int i=0;i<N;i++)  
+                x=x+(Math.random());
+
+            x=(x-temp/2)/(Math.sqrt(temp/12)); 
+            x=miu+x*Math.sqrt(sigma2);
+
+        }while(x<=0);          
+        return x;
+    }
+
+    public double Exponent_rand(double lamda){
+
+        double z =  Math.random();		
+        double x;
+
+        x = (-(1 / lamda) * Math.log(z)); 
+
+        return x;
+
+    }
+
+    /**
      * With the assumtion that each task can be finished before the next batch
      * comes
      * 	 */
@@ -121,7 +130,7 @@ public class Makespan_Test {
             for(int j = 0; j< num ; j++){  				
                 Node node = eligibleList.get(0);
                 for(Node enode : eligibleList){  					
-                    if(this.Getpri(schedule, node) > this.Getpri(schedule, enode)){  						
+                    if(this.Getpri(schedule, node, enode) == -1){  						
                         node = enode;
                     }
                 }
@@ -145,39 +154,39 @@ public class Makespan_Test {
     }
 
 
-	
-	public void makespan( ){
-		dag.ResetStatue();
-		CURRENT_TIME = 0.0;
-		DAG dag_copy = new DAG();
-		
-		for(Node node : dag.NodeList)
-			dag_copy.NodeList.add((Node) node.clone());   
-	
-		int i = 0, p = 0; 
-		List<Node> eligibleList = new LinkedList<Node>(); 
-		eligibleList = dag_copy.GetEntryNodes(); 
-		List<Node> allocated = new LinkedList<Node>();  
-		double lastFinish = 0.0;
-		while(dag_copy.NodeList.size() != 0){
-			List<Node> deln = new LinkedList<Node>();
-            
-           
+
+    public void makespan( ){
+        dag.ResetStatue();
+        CURRENT_TIME = 0.0;
+        DAG dag_copy = new DAG();
+
+        for(Node node : dag.NodeList)
+            dag_copy.NodeList.add((Node) node.clone());   
+
+        int i = 0, p = 0; 
+        List<Node> eligibleList = new LinkedList<Node>(); 
+        eligibleList = dag_copy.GetEntryNodes(); 
+        List<Node> allocated = new LinkedList<Node>();  
+        double lastFinish = 0.0;
+        while(dag_copy.NodeList.size() != 0){
+            List<Node> deln = new LinkedList<Node>();
+
+
 
             for(Node anode : allocated){   
-				
-				if(anode.jobTime <= interTime[i] + CURRENT_TIME){
-					
-					dag_copy.DelNode(anode);  
-					deln.add(anode);
-					lastFinish = Math.max(lastFinish, anode.jobTime);
-										
-					//Add the new eligible nodes.
-					List<Node> neweli = new LinkedList<Node>();					
-					neweli = dag_copy.GetEntryNodes();					
-					for(Node newnode : neweli)					
-						if(!dag_copy.contain(eligibleList, newnode )&&newnode.VertexStatue == 0){						
-							eligibleList.add(newnode);							
+
+                if(anode.jobTime <= interTime[i] + CURRENT_TIME){
+
+                    dag_copy.DelNode(anode);  
+                    deln.add(anode);
+                    lastFinish = Math.max(lastFinish, anode.jobTime);
+
+                    //Add the new eligible nodes.
+                    List<Node> neweli = new LinkedList<Node>();					
+                    neweli = dag_copy.GetEntryNodes();					
+                    for(Node newnode : neweli)					
+                        if(!dag_copy.contain(eligibleList, newnode )&&newnode.VertexStatue == 0){						
+                            eligibleList.add(newnode);							
                             //							System.out.println(" "+anode.jobTime+" : node "+newnode.data+" becomes eligible");
                         }	
                 }		
@@ -204,7 +213,7 @@ public class Makespan_Test {
                 for(int j = 0; j< num&& p<schedule.size() ; j++){  
                     Node node = eligibleList.get(0);				
                     for(Node enode : eligibleList){  
-                        if(this.Getpri(schedule, node) > this.Getpri(schedule, enode)){  						
+                        if(this.Getpri(schedule, node, enode) == -1){  						
                             node = enode;
                         }
                     }
@@ -218,7 +227,7 @@ public class Makespan_Test {
 
                 }
             }
-     //debug
+            //debug
             debug += System.lineSeparator() + "[ Finish list ]: ";
             for(Node node: deln) {
                 debug += node.data + ", ";
@@ -301,8 +310,13 @@ public class Makespan_Test {
     }
 
 
-
-    public void makespan_LSTF(int kind){
+    /**
+     *@param kind 0 means LTF Long time first schedule 
+     1 means STF Short time first schedule
+     *@param precision 0 means using estimated time to schedule task
+     1 means using precision time to schedule task
+     * */
+    public void makespan_LSTF(int kind, int precision){
         dag.ResetStatue();
         CURRENT_TIME = 0.0;
         DAG dag_copy = new DAG();
@@ -345,14 +359,32 @@ public class Makespan_Test {
                 //				System.out.println(" "+CURRENT_TIME+" : batch "+i+" arrives. size : "+cnum);				
                 int num = Math.min(cnum, eligibleList.size());				
                 for(int j = 0; j< num ; j++){  
-                    Node node = eligibleList.get(0);				
-                    for(Node enode : eligibleList){  
-                        if(kind == 0){
-                            if(enode.jobTime > node.jobTime)  
+                    Node node = eligibleList.get(0);
+                    if (precision == 0 && kind == 0) {
+                        for(Node enode : eligibleList) {
+                            if(this.taskTime[enode.data] > this.taskTime[node.data]) {
                                 node = enode;
-                        }else if(kind == 1)
-                            if(enode.jobTime < node.jobTime)  
+                            }
+                        }
+                    } else if (precision == 0 && kind == 1) {
+                        for(Node enode : eligibleList) {
+                            if(this.taskTime[enode.data] < this.taskTime[node.data]) {
                                 node = enode;
+                            }
+                        }
+                    } else if (precision == 1 && kind == 0) {
+                        for(Node enode : eligibleList) {
+                            if(enode.jobTime > node.jobTime) {
+                                node = enode;
+                            }
+                        }
+
+                    } else if (precision == 1 && kind == 1) {
+                        for(Node enode : eligibleList) {
+                            if(enode.jobTime < node.jobTime) {
+                                node = enode;
+                            }
+                        }
                     }
                     //					System.out.println(" "+CURRENT_TIME+" : node "+node.data+" is allocated ");
                     allocated.add(dag_copy.FindNode(node.data));
@@ -365,14 +397,35 @@ public class Makespan_Test {
         }
     }
 
-    public int Getpri(List<Node> schedule , Node node){
-
-        for(Node snode : schedule)
-            if(snode.data == node.data)
-                return schedule.indexOf(snode);
-        return -1;
+    public int Getpri(List<Node> schedule, Node node1, Node node2) {
+        int index1 = schedule.size();
+        int index2 = schedule.size();
+        for(Node snode : schedule) {
+            if(snode.data == node1.data) {
+                index1 = schedule.indexOf(snode);
+                break;
+            }
+            if(snode.data == node2.data) {
+                index2 = schedule.indexOf(snode);
+                break;
+            }
+        }
+        if(index1 < index2) {
+            return 1;
+        } else {
+            return -1;
+        }
     }
 
+    /*
+       public int Getpri(List<Node> schedule , Node node){
+
+       for(Node snode : schedule)
+       if(snode.data == node.data)
+       return schedule.indexOf(snode);
+       return -1;
+       }
+       */
     public void getEligible(DAG dag , List<Node> schedule){
 
         System.out.println("Schedule :");
@@ -382,31 +435,31 @@ public class Makespan_Test {
         System.out.println();
 
         List<Integer> eligi = new LinkedList<Integer>();		
-		List<Integer> total = new LinkedList<Integer>();		
-		DAG co_dag = new DAG();		
-		int area = 0;		
-		for(Node node : dag.NodeList)		
-			co_dag.NodeList.add((Node)node.clone());	
-		for(Node node :schedule){		
-			int e1 = co_dag.GetEntryNodes().size() - 1; 
-			co_dag.DelNode(node);
-			int e2 = co_dag.GetEntryNodes().size();
-			total.add(e2);
-			eligi.add(e2 - e1)  ;  
-	}
-		System.out.print("eligible jobs rendered by  : ");
-		for(Integer i : eligi)
-			System.out.print(" "+i);
-		System.out.println();
-		System.out.print("the total eligible jobs after t's execution : ");
-		for(Integer i : total){			
-			System.out.print(" "+i);
-			area += i;
-		}
-		System.out.println();
-		System.out.println("The area is "+area+", "+"the average area is "+(double)area/dag.NodeList.size());
-	}
-	
+        List<Integer> total = new LinkedList<Integer>();		
+        DAG co_dag = new DAG();		
+        int area = 0;		
+        for(Node node : dag.NodeList)		
+            co_dag.NodeList.add((Node)node.clone());	
+        for(Node node :schedule){		
+            int e1 = co_dag.GetEntryNodes().size() - 1; 
+            co_dag.DelNode(node);
+            int e2 = co_dag.GetEntryNodes().size();
+            total.add(e2);
+            eligi.add(e2 - e1)  ;  
+        }
+        System.out.print("eligible jobs rendered by  : ");
+        for(Integer i : eligi)
+            System.out.print(" "+i);
+        System.out.println();
+        System.out.print("the total eligible jobs after t's execution : ");
+        for(Integer i : total){			
+            System.out.print(" "+i);
+            area += i;
+        }
+        System.out.println();
+        System.out.println("The area is "+area+", "+"the average area is "+(double)area/dag.NodeList.size());
+    }
+
     public static void main(String agrs[]) throws IOException, RowsExceededException, WriteException{
 
         WritableWorkbook wwb = null;
@@ -441,12 +494,15 @@ public class Makespan_Test {
 
         int runtimes=100;
         Makespan_Test ms = new Makespan_Test();
-        ms.dagpath = "DAG_Cbbbs/cbbb_500_0.txt";
-        //ms.dagpath = "DAG_SP/sp_100_0.txt";
-        //ms.dagpath = "DAG_Random/random_100_0.txt";
         ms.dag = new DAG();		
         ms.dag.InitDAG(ms.dagpath);
-        ms.dag.initJobtime(10);
+        ms.dag.initJobtime(ms.initTime);
+        System.out.println("DAG path: "+ms.dagpath+"\nInit Job Time: "+ms.initTime+"\nPrecision: "+ms.PRECISION);
+        //Store estimated time in array
+        for (Node node : ms.dag.NodeList) {
+            ms.taskTime[node.data] = node.jobTime;
+            //System.out.println("node: "+node.data+"  taskTime "+ms.taskTime[node.data]);
+        }
 
         PB pb = new PB();  
         pb.PBSchedul(ms.dagpath);
@@ -469,7 +525,7 @@ public class Makespan_Test {
         heft.HeftSchedule(ms.dag.CopyDag());
         System.out.println("Finish Heft!");
         ms.getEligible(ms.dag, heft.SchedulList);
-       
+
         EPB epb = new EPB();
         epb.EPBSchedul(ms.dag.CopyDag());
         System.out.println("Finish EPB!");
@@ -479,7 +535,9 @@ public class Makespan_Test {
 
         /***************************Please notice 2 ************************************************************/
         //actual run time
-        //ms.initJobtime( );	  
+        if(ms.PRECISION == 0) {
+            ms.initJobtime( );	  
+        }
         /**************************** end notice ****************************************************************/
 
         int batchsize=1;			
@@ -506,38 +564,49 @@ public class Makespan_Test {
                 npbTime_2 +=ms.CURRENT_TIME;
                 ms.debug1 = ms.debug;
                 double t1_2 = ms.CURRENT_TIME;
-                //					System.out.println("----------------------PB0---------------------- ");	
+                System.out.println("----------------------PB0---------------------- " + i + " batchsize= "+batchsize);	
                 ms.schedule = pb.SchedulList;			
                 ms.makespan();					
                 pbTime_2 += ms.CURRENT_TIME;
-                //					System.out.println("----------------------PB---------------------- ");	
+                System.out.println("----------------------PB---------------------- " + i + " batchsize= "+batchsize);	
                 ms.schedule = ao.schedule;			
                 ms.makespan();					
                 aoTime_2 += ms.CURRENT_TIME;
-                //					System.out.println("----------------------AO---------------------- ");	
-                
+                System.out.println("----------------------AO---------------------- " + i + " batchsize= "+batchsize);	
+
                 ms.debug = " ";
                 ms.schedule = heft.SchedulList;			
                 ms.makespan();					
                 heftTime_2 += ms.CURRENT_TIME;
                 double t2_2 = ms.CURRENT_TIME;
-                //					System.out.println("----------------------Heft---------------------- ");	
-                if(t1_2 > t2_2){
-                    System.out.println("blevel------------------------\n" + ms.debug);
-                    System.out.println("EPB---------------------------\n " + ms.debug1);
-                }
+                System.out.println("----------------------Heft---------------------- " + i + " batchsize= "+batchsize);	
+
+                /** debug
+                  if(t1_2 > t2_2){
+                  System.out.println("blevel------------------------\n" + ms.debug);
+                  System.out.println("EPB---------------------------\n " + ms.debug1);
+                  }
+                  */
                 ms.schedule = ico.schedule;
                 ms.makespan();
                 icoTime_2 += ms.CURRENT_TIME;
+                System.out.println("----------------------ICO---------------------- " + i + " batchsize= "+batchsize);	
+
 
                 ms.makespan_FIFO();
                 fifoTime_2 += ms.CURRENT_TIME;
-                //					System.out.println("----------------------FIFO---------------------- ");	
-                ms.makespan_LSTF(0);
+                System.out.println("----------------------FIFO---------------------- " + i + " batchsize= "+batchsize);	
+
+
+                ms.makespan_LSTF(0, ms.PRECISION);
                 ltfTime_2 += ms.CURRENT_TIME;
-                //					System.out.println("----------------------LTF---------------------- ");	
-                ms.makespan_LSTF(1);
-                //					System.out.println("----------------------STF---------------------- ");	
+                System.out.println("----------------------LTF---------------------- " + i + " batchsize= "+batchsize);	
+
+
+                ms.makespan_LSTF(1, ms.PRECISION);
+                System.out.println("----------------------STF---------------------- " + i + " batchsize= "+batchsize);	
+
+
                 stfTime_2 += ms.CURRENT_TIME;
             }
             Label Labeltitle = new Label(0, loop+1, batchsize+"");
